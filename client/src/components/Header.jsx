@@ -1,4 +1,4 @@
-
+import { Link } from "react-router-dom";
 const Header=()=>{
 
 
@@ -9,7 +9,7 @@ const Header=()=>{
 
         <ul className="flex space-x-6">
     <li className="p-2 hover:font-bold">Login</li>
-    <li className="p-2 hover:font-bold">Become a Seller</li>
+    <li className="p-2 hover:font-bold"><Link to="/seller">Become a Seller</Link></li>
     <li className="p-2 hover:font-bold">Contact us</li>
         </ul>
     </div>

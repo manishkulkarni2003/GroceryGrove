@@ -21,6 +21,10 @@ const ownerSchema = new mongoose.Schema({
     picture: {
         type: String,
 
+    },
+    contact: {
+        type: Number,
+        required: true
     }
 
 

@@ -4,10 +4,10 @@ const { generateToken } = require("../utils/generateToken");
 
 const registerOwner = async (req, res) => {
     try {
-        const { fullname, email, password } = req.body;
+        const { fullname, email, password, contact } = req.body;
 
         // Check for missing fields
-        if (!fullname || !email || !password) {
+        if (!fullname || !email || !password || !contact) {
             return res.status(400).json({ message: "All fields are required" });
         }
 
@@ -25,6 +25,7 @@ const registerOwner = async (req, res) => {
         const owner = await Owner.create({
             fullname,
             email,
+            contact,
             password: hash
         });
 

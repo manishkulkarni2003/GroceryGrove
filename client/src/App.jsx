@@ -1,8 +1,10 @@
 // App.jsx
-import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
+import { createBrowserRouter, RouterProvider, Outlet, BrowserRouter } from "react-router-dom";
 import Header from './components/Header';
 import Login from './components/Login';
 import Body from './components/Body';
+import SellerLogin from "./components/SellerLogin";
+import Dashboard from "./components/Dashboard";
 
 function App() {
   return (
@@ -26,6 +28,14 @@ const appRouter = createBrowserRouter([
       {
         path: '/body',  // Route for Body component at /body path
         element: <Body />
+      },
+      {
+        path:"/seller",
+        element:<SellerLogin/>
+      },
+      {
+        path:"/dashboard",
+        element:<Dashboard/>
       }
     ]
   }
