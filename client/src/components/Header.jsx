@@ -1,20 +1,48 @@
-import { Link } from "react-router-dom";
-const Header=()=>{
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { removeUser } from "../utils/userSlice";
 
+const Header = () => {
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const user = useSelector((store) => store.user);
 
-    return(
-        
-<div className="flex w-full bg-gray-300 border-b items-center justify-between p-3 m-auto top-0">
-<img className="w-20  rounded-lg" src="/images/Logo.jpeg" alt="Logo" />
+    const handleLogout = async () => {
+        try {
+            const response = await fetch("http://localhost:8080/users/logout", {
+                method: "GET",  // Normally, logout is a GET request to clear the session
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
 
-        <ul className="flex space-x-6">
-    <li className="p-2 hover:font-bold">Login</li>
-    <li className="p-2 hover:font-bold"><Link to="/seller">Become a Seller</Link></li>
-    <li className="p-2 hover:font-bold">Contact us</li>
-        </ul>
-    </div>
+            if (response.ok) {
+                dispatch(removeUser());  // Clear the user data from Redux
+                navigate("/");  // Redirect to home page or login page
+            } else {
+                console.log('Logout failed');
+            }
+        } catch (err) {
+            console.log(err.message, "An error occurred while logging out");
+        }
+    };
 
-    )
-}
+    return (
+        <div className="flex w-full bg-gray-300 border-b items-center justify-between p-3 m-auto top-0">
+            <img className="w-20 rounded-lg" src="/images/Logo.jpeg" alt="Logo" />
+            <ul className="flex space-x-6">
+                <li className="p-2 hover:font-bold">Newsletter</li>
+                <li className="p-2 hover:font-bold"><Link to="/seller">Become a Seller</Link></li>
+                <li className="p-2 hover:font-bold">Contact us</li>
+                {user && (
+                    <>
+                        <li className="p-2 hover:font-bold">{`Welcome, ${user.fullname}`}</li>
+                        <li className="p-2 hover:font-bold" onClick={handleLogout}>Logout</li>
+                    </>
+                )}
+            </ul>
+        </div>
+    );
+};
 
 export default Header;

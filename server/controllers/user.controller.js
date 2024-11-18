@@ -63,7 +63,7 @@ const loginUser = async function (req, res) {
         if (result) {
             const token = generateToken(user);
             res.cookie("token", token);
-            res.send("USer Logged in Successfully");
+            return res.status(200).json({ message: "USer Logged in Successfully", user: user });
             // res.send("User logged in Successfully");
         }
         else {
@@ -74,5 +74,11 @@ const loginUser = async function (req, res) {
 
     })
 }
+const logoutUser = async function (req, res) {
+    res.cookie("token", "");
+    res.redirect("/")
 
-module.exports = { registerUser, loginUser };
+}
+
+
+module.exports = { registerUser, loginUser, logoutUser };

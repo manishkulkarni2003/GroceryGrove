@@ -5,7 +5,9 @@ import Login from './components/Login';
 import Body from './components/Body';
 import SellerLogin from "./components/SellerLogin";
 import Dashboard from "./components/Dashboard";
-
+import { Provider } from 'react-redux';
+import store from "./utils/app.store"
+import ProtectedRoute from "./components/ProtectedRoute";
 function App() {
   return (
     <>
@@ -26,8 +28,14 @@ const appRouter = createBrowserRouter([
         element: <Login />
       },
       {
-        path: '/body',  // Route for Body component at /body path
-        element: <Body />
+        path: '/body', 
+         // Route for Body component at /body path
+        element: (
+          <ProtectedRoute>
+        <Body />
+         </ProtectedRoute>
+        
+      )
       },
       {
         path:"/seller",
@@ -43,7 +51,12 @@ const appRouter = createBrowserRouter([
 
 // Wrap RouterProvider with appRouter
 function Root() {
-  return <RouterProvider router={appRouter} />;
+  return(
+  <Provider store={store}>
+   <RouterProvider router={appRouter} />
+   </Provider>
+
+  );
 }
 
 export { App, Root };
