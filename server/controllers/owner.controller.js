@@ -67,5 +67,10 @@ const loginOwner = async (req, res) => {
         return res.status(500).json({ message: "Server error" });
     }
 };
+const logoutOwner = async function (req, res) {
+    res.cookie("token", "");
+    res.redirect("/")
 
-module.exports = { registerOwner, loginOwner };
+}
+
+module.exports = { registerOwner, loginOwner, logoutOwner };

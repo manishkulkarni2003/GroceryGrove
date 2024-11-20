@@ -1,107 +1,192 @@
-import { useNavigate } from "react-router-dom"
-import axios from "axios"
-import { useRef } from "react";
-
+import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+ // Replace with your Redux action for adding seller data
+import { addSeller } from "../utils/sellerSlice";
 
 const SellerLogin = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-    const navigate =useNavigate();
+  // State for handling form data and toggle
+  const [formData, setFormData] = useState({
+    fullname: "",
+    email: "",
+    contact: "",
+    password: "",
+  });
+  const [isSignInForm, setIsSignInForm] = useState(false); // Toggle state
+  const [errorMessage, setErrorMessage] = useState(""); // State to store error messages
 
-    const nameRef =useRef(null)
-    const emailRef =useRef(null)
-    const numberRef =useRef(null)
-    const passwordRef =useRef(null)
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
 
-    const handleSubmit=async(e)=>{
-        e.preventDefault();
+  // Register seller
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await fetch("http://localhost:8080/owner/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
 
+      const data = await response.json();
 
-        const sellerData ={
-            fullname:nameRef.current.value ,
-            email:emailRef.current.value ,
-            contact:numberRef.current.value ,
-            password:passwordRef.current.value 
-        };
-        try{
-            const response =await axios.post("http://localhost:8080/owner/register",sellerData);
-            console.log("response:",response.data)
-            alert("Registered");
-            navigate("/dashboard")
-        }
-        catch(err){
-            console.log(err.message)
-        }
-    
-}
-return (
+      if (response.ok) {
+        dispatch(addSeller(data)); // Store seller in Redux
+        alert("Registration successful!");
+        navigate("/dashboard");
+      } else {
+        setErrorMessage(data.message || "Registration failed"); // Handle server-side errors
+      }
+    } catch (err) {
+      console.error(err.message);
+      setErrorMessage("An error occurred while registering"); // Handle client-side errors
+    }
+  };
+
+  // Sign-in seller
+  const handleSignIn = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await fetch("http://localhost:8080/owner/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        dispatch(addSeller(data)); // Store seller in Redux
+        alert("Sign In successful!");
+        navigate("/dashboard");
+      } else {
+        setErrorMessage(data.message || "Sign In failed"); // Handle server-side errors
+      }
+    } catch (error) {
+      console.error(error.message);
+      setErrorMessage("An error occurred while signing in"); // Handle client-side errors
+    }
+  };
+
+  return (
     <div className="flex items-center justify-center min-h-screen bg-gray-200">
       <div className="bg-yellow-200 p-8 rounded-lg shadow-lg w-full max-w-md">
-        <h2 className="text-2xl font-bold text-center mb-6">Become a seller</h2>
-        <form onSubmit={handleSubmit}>
-        <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="fullname">
-                fullname
-            </label>
-            <input  ref={nameRef}
-            id="fullname"
-            name="fullname"
-            type="text" 
-            className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-             placeholder="Enter Your Fullname"/>
-            
-        </div>
-        <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
-                email
-            </label>
-            <input ref={emailRef}
-            type="text"
-            id="email"
-            name="email"
+        <h2 className="text-2xl font-bold text-center mb-6">
+          {isSignInForm ? "Seller Sign In" : "Seller Sign Up"}
+        </h2>
 
-            className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="enter your email" />
-            
-        </div>
-        <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="number">
-                contact number
+        {/* Conditionally render Sign Up or Sign In form */}
+        <form onSubmit={isSignInForm ? handleSignIn : handleRegister}>
+          {!isSignInForm && (
+            <>
+              <div className="mb-4">
+                <label
+                  className="block text-gray-700 text-sm font-bold mb-2"
+                  htmlFor="fullname"
+                >
+                  Full Name
+                </label>
+                <input
+                  onChange={handleChange}
+                  type="text"
+                  id="fullname"
+                  name="fullname"
+                  className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Enter your full name"
+                />
+              </div>
+              <div className="mb-4">
+                <label
+                  className="block text-gray-700 text-sm font-bold mb-2"
+                  htmlFor="contact"
+                >
+                  Contact Number
+                </label>
+                <input
+                  onChange={handleChange}
+                  type="tel"
+                  id="contact"
+                  name="contact"
+                  className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Enter your phone number"
+                />
+              </div>
+            </>
+          )}
+          <div className="mb-4">
+            <label
+              className="block text-gray-700 text-sm font-bold mb-2"
+              htmlFor="email"
+            >
+              Email
             </label>
-            <input ref={numberRef}
-            type="tel"
-            id="number"
-            name="number"
-
-            className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="enter your phone number" />
-            
-        </div>
-        <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
-                Password
+            <input
+              onChange={handleChange}
+              type="email"
+              id="email"
+              name="email"
+              className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Enter your email"
+            />
+          </div>
+          <div className="mb-6">
+            <label
+              className="block text-gray-700 text-sm font-bold mb-2"
+              htmlFor="password"
+            >
+              Password
             </label>
-            <input ref={passwordRef}
-            type="password"
-            id="password"
-            name="password"
+            <input
+              onChange={handleChange}
+              type="password"
+              id="password"
+              name="password"
+              className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Enter your password"
+            />
+          </div>
 
-             className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-             placeholder="enter your password"/>
-            
-        </div>
-        <button type="submit"
+          <button
+            type="submit"
             className="w-full bg-blue-500 text-white font-bold py-3 rounded-lg hover:bg-blue-600 transition duration-300"
-        >
-
-            
-            Sign Up
-
-        </button>
-
+          >
+            {isSignInForm ? "Sign In" : "Sign Up"}
+          </button>
         </form>
+
+        {/* Toggle between Sign Up and Sign In */}
+        <div className="mt-4 text-center">
+          <button
+            onClick={() => setIsSignInForm(!isSignInForm)}
+            className="text-blue-500 hover:underline"
+          >
+            {isSignInForm
+              ? "Don't have an account? Sign Up"
+              : "Already have an account? Sign In"}
+          </button>
+        </div>
+
+        {/* Display error message if any */}
+        {errorMessage && (
+          <div className="mt-4 text-center text-red-500">
+            <p>{errorMessage}</p>
+          </div>
+        )}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default SellerLogin
+export default SellerLogin;
