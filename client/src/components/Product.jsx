@@ -1,123 +1,172 @@
-import React, { useState } from "react";
-import axios from "axios";
+// Product.jsx
+import React, { useState, useContext } from 'react';
+// Assuming you have some form of auth context
+// import { AuthContext } from '../context/AuthContext';  
 
 const Product = () => {
-  const [productData, setProductData] = useState({
-    name: "",
-    price: "",
-    image: null,
+  // Uncomment and use your actual auth context
+  // const { user } = useContext(AuthContext);
+  
+  const [formData, setFormData] = useState({
+    name: '',
+    price: '',
+    image: null
   });
-  const [uploadStatus, setUploadStatus] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [previewUrl, setPreviewUrl] = useState(null);
 
-  // Handle input change
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setProductData((prevData) => ({ ...prevData, [name]: value }));
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
-  // Handle file change
-  const handleFileChange = (e) => {
-    setProductData((prevData) => ({ ...prevData, image: e.target.files[0] }));
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFormData(prev => ({
+        ...prev,
+        image: file
+      }));
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+    }
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!productData.name || !productData.price || !productData.image) {
-      setUploadStatus("Please fill all fields and upload an image.");
-      return;
-    }
+    setLoading(true);
+    setError('');
 
     try {
-      const formData = new FormData();
-      formData.append("name", productData.name);
-      formData.append("price", productData.price);
-      formData.append("image", productData.image);
+      // Get the actual user ID from your auth system
+      // const ownerId = user._id;  // Uncomment and use your actual user ID
+      const ownerId = '673e0b2650f9240a305e2a28'; // Replace this with actual user ID from your auth system
+      
+      if (!ownerId) {
+        throw new Error('You must be logged in to create a product');
+      }
 
-      const response = await axios.post("http://localhost:8080/product/products", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+      const formDataToSend = new FormData();
+      formDataToSend.append('name', formData.name);
+      formDataToSend.append('price', formData.price);
+      formDataToSend.append('image', formData.image);
+      formDataToSend.append('ownerId', ownerId);
+
+      const response = await fetch('http://localhost:8080/product/products', {
+        method: 'POST',
+        body: formDataToSend,
       });
 
-      if (response.status === 200) {
-        setUploadStatus("Product uploaded successfully!");
-        setProductData({ name: "", price: "", image: null });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to create product');
       }
+
+      const data = await response.json();
+      console.log('Product created:', data);
+      
+      // Reset form
+      setFormData({
+        name: '',
+        price: '',
+        image: null
+      });
+      setPreviewUrl(null);
+
+      // Optional: Add success message or redirect
+      // navigate('/products');  // If using react-router
     } catch (error) {
-      console.error("Error uploading product:", error);
-      setUploadStatus("Failed to upload product. Please try again.");
+      console.error('Error creating product:', error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h2 className="text-2xl font-semibold text-gray-700 mb-6 text-center">
-          Upload Product
-        </h2>
+    <div className="w-full max-w-lg mx-auto mt-8 bg-white rounded-lg shadow-md">
+      <div className="p-6">
+        <h2 className="text-2xl font-bold mb-6">Create New Product</h2>
+        
+        {error && (
+          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+            {error}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Product Name */}
           <div>
-            <label className="block text-gray-600 font-medium mb-2">Product Name</label>
+            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+              Product Name
+            </label>
             <input
-              type="text"
+              id="name"
               name="name"
-              value={productData.name}
+              type="text"
+              value={formData.name}
               onChange={handleChange}
-              placeholder="Enter product name"
-              className="w-full px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-
-          {/* Price */}
+          
           <div>
-            <label className="block text-gray-600 font-medium mb-2">Price</label>
+            <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-1">
+              Price
+            </label>
             <input
-              type="number"
+              id="price"
               name="price"
-              value={productData.price}
+              type="number"
+              step="0.01"
+              min="0"
+              value={formData.price}
               onChange={handleChange}
-              placeholder="Enter product price"
-              className="w-full px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-
-          {/* Image Upload */}
+          
           <div>
-            <label className="block text-gray-600 font-medium mb-2">Product Image</label>
+            <label htmlFor="image" className="block text-sm font-medium text-gray-700 mb-1">
+              Product Image
+            </label>
             <input
-              type="file"
+              id="image"
               name="image"
+              type="file"
+              onChange={handleImageChange}
               accept="image/*"
-              onChange={handleFileChange}
-              className="w-full px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
+            {previewUrl && (
+              <div className="mt-2">
+                <img 
+                  src={previewUrl} 
+                  alt="Preview" 
+                  className="w-32 h-32 object-cover rounded-md"
+                />
+              </div>
+            )}
           </div>
-
-          {/* Submit Button */}
+          
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-          >
-            Upload Product
-          </button>
-        </form>
-
-        {/* Upload Status */}
-        {uploadStatus && (
-          <p
-            className={`mt-4 text-center font-medium ${
-              uploadStatus.includes("successfully")
-                ? "text-green-600"
-                : "text-red-600"
+            disabled={loading}
+            className={`w-full py-2 px-4 rounded-md text-white font-medium ${
+              loading 
+                ? 'bg-gray-400 cursor-not-allowed' 
+                : 'bg-blue-600 hover:bg-blue-700'
             }`}
           >
-            {uploadStatus}
-          </p>
-        )}
+            {loading ? 'Creating...' : 'Create Product'}
+          </button>
+        </form>
       </div>
     </div>
   );
