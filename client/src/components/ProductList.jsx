@@ -12,11 +12,12 @@ const ProductCard = ({ product }) => (
     <div className="p-4">
       <h3 className="font-semibold text-lg mb-2">{product.name}</h3>
       <p className="text-green-600 font-medium text-lg mb-2">
-        ${parseFloat(product.price).toFixed(2)}
+      ₹{parseFloat(product.price).toFixed(2)}
       </p>
       <p className="text-sm text-gray-500">
         Seller: {product.owner?.name || 'Unknown'}
       </p>
+      <button className='bg-red-700 text-white rounded-md p-3 hover:bg-red-500'>Add to Cart</button>
     </div>
   </div>
 );
