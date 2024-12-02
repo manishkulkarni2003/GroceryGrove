@@ -1,18 +1,22 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { clearCart, removeItem } from "../utils/cartSlice";
+import { clearCart, removeItem, addItem } from "../utils/cartSlice";
 
 const Cart = () => {
   const cartOrders = useSelector((store) => store.cart.orders);
-  const dispatch =useDispatch();
-  const handleRemove = ()=>{
-    dispatch(removeItem())
+  const dispatch = useDispatch();
 
-  }
-  const handleClearCart=()=>{
-    dispatch(clearCart())
+  const handleIncrement = (item) => {
+    dispatch(addItem(item)); // Increment item quantity
+  };
 
-  }
+  const handleDecrement = (item) => {
+    dispatch(removeItem(item)); // Decrement item quantity
+  };
+
+  const handleClearCart = () => {
+    dispatch(clearCart()); // Clear the cart
+  };
 
   return (
     <div className="text-center m-4 p-4">
@@ -30,19 +34,38 @@ const Cart = () => {
               />
               <h3 className="font-semibold text-lg mt-2">{order.name}</h3>
               <p className="text-green-600 font-medium text-lg">
-                ₹{parseFloat(order.price).toFixed(2)}
+                ₹{(order.price * order.quantity).toFixed(2)} {/* Dynamic Price */}
               </p>
-              <button onClick={handleRemove}
-                className="bg-red-700 text-white rounded-md p-2 mt-4 hover:bg-red-500"
-              >
-                Remove from Cart
-              </button>
+              <div className="flex items-center justify-between mt-4">
+                <button
+                  onClick={() => handleDecrement(order)}
+                  className="bg-red-700 text-white rounded-md px-2 py-1 hover:bg-red-500"
+                >
+                  -
+                </button>
+                <span className="px-4">{order.quantity}</span> {/* Quantity */}
+                <button
+                  onClick={() => handleIncrement(order)}
+                  className="bg-teal-700 text-white rounded-md px-2 py-1 hover:bg-teal-500"
+                >
+                  +
+                </button>
+              </div>
             </div>
           ))}
-          <div className="">
-            <button onClick={handleClearCart} className=" bg-teal-700 text-white rounded-lg p-2 mt-4 hover:bg-teal-500">Clear Cart</button>
+          <div className="mt-4">
+            <button
+              onClick={handleClearCart}
+              className="bg-teal-700 text-white rounded-lg p-2 hover:bg-teal-500"
+            >
+              Clear Cart
+            </button>
+          </div>
+          <div>
+            <button className="bg-teal-700 text-white rounded-lg p-2 hover:bg-teal-500">Place Order</button>
           </div>
         </div>
+      
       )}
     </div>
   );
