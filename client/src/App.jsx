@@ -8,6 +8,7 @@ import Dashboard from "./components/Dashboard";
 import { Provider } from 'react-redux';
 import store from "./utils/app.store"
 import ProtectedRoute from "./components/ProtectedRoute";
+import Cart from "./components/Cart";
 function App() {
   return (
     <>
@@ -44,6 +45,10 @@ const appRouter = createBrowserRouter([
       {
         path:"/dashboard",
         element:<Dashboard/>
+      },
+      {
+        path:"/cart",
+        element:<Cart/>
       }
     ]
   }

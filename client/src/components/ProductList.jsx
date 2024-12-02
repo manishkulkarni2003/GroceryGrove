@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from 'react';
+import { useDispatch } from 'react-redux';
+import { addItem } from '../utils/cartSlice';
 
-const ProductCard = ({ product }) => (
+const ProductCard = ({ product }) =>
+  { 
+    const dispatch =useDispatch();
+    const handleAddToCart=()=>{
+      dispatch(addItem(product))
+    }
+
+    return(
   <div className="bg-white rounded-lg shadow-md overflow-hidden">
     <div className="aspect-w-1 aspect-h-1">
       <img 
@@ -17,10 +26,11 @@ const ProductCard = ({ product }) => (
       <p className="text-sm text-gray-500">
         Seller: {product.owner?.name || 'Unknown'}
       </p>
-      <button className='bg-red-700 text-white rounded-md p-3 hover:bg-red-500'>Add to Cart</button>
+      <button onClick={handleAddToCart}
+       className='bg-red-700 text-white rounded-md p-3 hover:bg-red-500'>Add to Cart</button>
     </div>
   </div>
-);
+)};
 
 const ProductList = () => {
   const [products, setProducts] = useState([]);

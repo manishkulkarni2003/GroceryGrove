@@ -44,6 +44,10 @@ const Header = () => {
                         <li className="p-2 hover:font-bold">
                             {`Welcome, ${user?.fullname || owner?.fullname}`}
                         </li>
+                        <li className="p-2 hover:font-bold">
+                            <Link to="/cart">Cart</Link>
+                            
+                        </li>
                         <li className="p-2 hover:font-bold" onClick={handleLogout}>
                             Logout
                         </li>

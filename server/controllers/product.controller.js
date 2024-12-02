@@ -41,7 +41,7 @@ const createProduct = async (req, res) => {
 
 const getSellerProducts = async (req, res) => {
     try {
-        const sellerId = req.params.sellerId;
+        const sellerId = req.params.ownerId;
         const products = await Product.find({ owner: sellerId })
             .populate('owner', 'name email') // Populate owner details
             .sort({ createdAt: -1 });
